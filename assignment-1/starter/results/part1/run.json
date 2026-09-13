@@ -1,6 +1,6 @@
 {
-  "code_revision": "unversioned",
-  "finished_at": "2026-09-13T19:03:30.711140+00:00",
+  "code_revision": "da96879dac02420b69e9e751abcc4e9de5dbb74c",
+  "finished_at": "2026-09-13T21:31:48.872051+00:00",
   "inputs": {
     "google_qec": {
       "archive_members": 76,
@@ -38,7 +38,7 @@
     "part1/data_issues.parquet": {
       "bytes": 5248,
       "rows": 21,
-      "sha256": "532fb25efe4a80a57ea28066df24c58454491f27321804c5caf273bb57026c69"
+      "sha256": "54dc597da809d99a01f29774a0ca90f245c25c8cf93d475be5f84e58ca290e27"
     },
     "part1/source_trace.parquet": {
       "bytes": 12755758,
@@ -66,9 +66,9 @@
       "sha256": "934df36215233fa74757ac5aac18e3de6432e60ad7e975c9e1a7475764259a89"
     },
     "silver/qasmbench/stabilizer_check.parquet": {
-      "bytes": 2649,
+      "bytes": 2670,
       "rows": 4,
-      "sha256": "b6a763f384d6b0a78c2d5797b4bdb9fb43901f66c6a84dae91c1b9b0e6ebedc5"
+      "sha256": "157d4734f52f6e1abad191cc9d13e6129b386bffedec8113986ea77d4af19a72"
     },
     "silver/qec_syndromes/syndrome_observation.parquet": {
       "bytes": 3046287,
@@ -76,27 +76,27 @@
       "sha256": "a8dfeb15a8dc79c891514c52af596a4dcdd3f983946bcdcfe534db4cfca352ad"
     }
   },
-  "run_id": "run-20260913T190328Z",
+  "run_id": "run-20260913T213147Z",
   "silver_to_gold": {
     "status": "pending"
   },
   "stages": [
     {
-      "finished_at": "2026-09-13T19:03:28.770679+00:00",
+      "finished_at": "2026-09-13T21:31:47.078131+00:00",
       "input_count": 3,
       "issue_count": 0,
       "output_count": 3,
       "stage": "register_sources",
-      "started_at": "2026-09-13T19:03:28.721223+00:00"
+      "started_at": "2026-09-13T21:31:47.031055+00:00"
     },
     {
-      "finished_at": "2026-09-13T19:03:30.703699+00:00",
+      "finished_at": "2026-09-13T21:31:48.863968+00:00",
       "input_count": 3,
       "issue_count": 21,
       "output_count": 325619,
       "stage": "prepare_data",
-      "started_at": "2026-09-13T19:03:28.770691+00:00"
+      "started_at": "2026-09-13T21:31:47.078140+00:00"
     }
   ],
-  "started_at": "2026-09-13T19:03:28.688652+00:00"
+  "started_at": "2026-09-13T21:31:47.000422+00:00"
 }

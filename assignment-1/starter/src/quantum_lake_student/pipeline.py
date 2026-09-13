@@ -30,6 +30,8 @@ class Part1Result:
     run_id: str
     outcome: SilverOutcome
     published: dict[str, PublishResult]
+    results_root: Path
+    partial: bool = False
 
 
 def default_results_root() -> Path:
@@ -48,20 +50,34 @@ def run_part1(
     repository: Path | None = None,
     run_id: str | None = None,
     sources: tuple[str, ...] | None = None,
+    bronze_root: Path | None = None,
 ) -> Part1Result:
-    """Execute Bronze and Silver, publish, and write the evidence files."""
-    context = RunContext.create(
-        settings=settings or Settings.from_environment(),
-        results_root=results_root or default_results_root(),
-        repository=repository or default_repository(),
-        run_id=run_id,
-    )
+    """Execute Bronze and Silver, publish, and write the evidence files.
 
-    registry, register_result = register(context)
+    ``sources`` limits the run to a subset, for iterating on one parser. Such a
+    run is *partial*: its ``source_trace`` covers only the sources it processed,
+    so its evidence goes under ``results/partial/<sources>/`` instead of over the
+    canonical ``results/part1/``. Otherwise the Silver tables an earlier full run
+    left in place would be left untraced, breaking the tracing contract.
+    """
     if sources:
         unknown = set(sources) - set(SOURCE_ORDER)
         if unknown:
             raise ValueError(f"Unknown source(s): {', '.join(sorted(unknown))}")
+
+    canonical = results_root or default_results_root()
+    effective = canonical / "partial" / "-".join(sorted(sources)) if sources else canonical
+
+    context = RunContext.create(
+        settings=settings or Settings.from_environment(),
+        results_root=effective,
+        repository=repository or default_repository(),
+        run_id=run_id,
+        bronze_root=bronze_root,
+    )
+
+    registry, register_result = register(context)
+    if sources:
         registry = {
             name: entry for name, entry in registry.items() if name in sources
         }
@@ -76,7 +92,11 @@ def run_part1(
         published=published,
     )
     return Part1Result(
-        run_id=context.run_id, outcome=outcome, published=published
+        run_id=context.run_id,
+        outcome=outcome,
+        published=published,
+        results_root=effective,
+        partial=bool(sources),
     )
 
 

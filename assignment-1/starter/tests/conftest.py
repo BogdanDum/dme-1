@@ -81,7 +81,8 @@ GOOGLE_DETECTORS = GOOGLE_ROUNDS * GOOGLE_MEASURE_QUBITS          # 16 bits, 2 b
 GOOGLE_MEASUREMENTS = GOOGLE_DETECTORS + GOOGLE_DATA_QUBITS       # 25 bits, 4 bytes
 GOOGLE_SWEEP_BITS = GOOGLE_DATA_QUBITS                            # 9 bits, 2 bytes
 
-GOOGLE_PROPERTIES = f"""type: surface_code_memory_experiment
+def google_properties(sweep_bits: int = GOOGLE_SWEEP_BITS) -> str:
+    return f"""type: surface_code_memory_experiment
 basis: X
 rounds: {GOOGLE_ROUNDS}
 distance: 3
@@ -91,11 +92,14 @@ shots: {GOOGLE_SHOTS}
 center_data_qubit_row: 3
 center_data_qubit_col: 5
 circuit_measurements: {GOOGLE_MEASUREMENTS}
-circuit_sweep_bits: {GOOGLE_SWEEP_BITS}
+circuit_sweep_bits: {sweep_bits}
 circuit_detectors: {GOOGLE_DETECTORS}
 circuit_observables: 1
 circuit_qubits: 17
 """
+
+
+GOOGLE_PROPERTIES = google_properties()
 
 DECODER_FILES = (
     "obs_flips_predicted_by_belief_matching.01",
@@ -139,6 +143,7 @@ def google_members(
     actual: list[int] | None = None,
     omit: str | None = None,
     measurement_padding: bool = False,
+    sweep_bits: int = GOOGLE_SWEEP_BITS,
 ) -> dict[str, bytes]:
     """Members of one synthetic Google experiment directory."""
     detector_rows = detector_rows or [
@@ -160,15 +165,20 @@ def google_members(
         record_bytes = (GOOGLE_MEASUREMENTS + 7) // 8
         measurements[GOOGLE_SHOTS * record_bytes - 1] |= 0b1000_0000
 
+    # With zero sweep bits the experiment ships an empty sweep file, which is the
+    # case the contract calls out with "including an empty value".
+    sweep = (
+        bits_to_b8([[0] * sweep_bits] * GOOGLE_SHOTS, sweep_bits)
+        if sweep_bits
+        else b""
+    )
     members = {
-        f"{GOOGLE_DIRECTORY}/properties.yml": GOOGLE_PROPERTIES.encode(),
+        f"{GOOGLE_DIRECTORY}/properties.yml": google_properties(sweep_bits).encode(),
         f"{GOOGLE_DIRECTORY}/measurements.b8": bytes(measurements),
         f"{GOOGLE_DIRECTORY}/detection_events.b8": bits_to_b8(
             detector_rows, GOOGLE_DETECTORS
         ),
-        f"{GOOGLE_DIRECTORY}/sweep.b8": bits_to_b8(
-            [[0] * GOOGLE_SWEEP_BITS] * GOOGLE_SHOTS, GOOGLE_SWEEP_BITS
-        ),
+        f"{GOOGLE_DIRECTORY}/sweep.b8": sweep,
         f"{GOOGLE_DIRECTORY}/obs_flips_actual.01": zero_one_file(actual),
     }
     for index, name in enumerate(DECODER_FILES):
@@ -266,6 +276,18 @@ def write_release(root: Path, **google_kwargs) -> Release:
         postgres_password="test",
     )
     return Release(root=root, settings=settings, objects=archives)
+
+
+@pytest.fixture(autouse=True)
+def isolate_from_ambient_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the developer's shell out of the tests.
+
+    ``LOCAL_BRONZE_ROOT`` is read from the environment when it is set, so a shell
+    that exports it for a local pipeline run would otherwise redirect every test
+    away from its fixture and at the real 14 MB release.
+    """
+    for name in ("LOCAL_BRONZE_ROOT", "LAKE_BACKEND", "LOCAL_LAKE_ROOT"):
+        monkeypatch.delenv(name, raising=False)
 
 
 @pytest.fixture

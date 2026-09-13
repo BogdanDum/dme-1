@@ -19,6 +19,7 @@ from quantum_lake_student.formats import b8_record_bytes, iter_b8_records
 from quantum_lake_student.ml import unpack_little_endian_bits
 from quantum_lake_student.quality import FatalDataError
 from quantum_lake_student.runcontext import RunContext
+from quantum_lake_student.schemas import DECODER_PREDICTION_COLUMNS
 from quantum_lake_student.sources import google
 from quantum_lake_student.stages.register_sources import register
 
@@ -217,6 +218,68 @@ def test_non_zero_padding_bit_excludes_only_that_shot(tmp_path):
     assert stats["shots_read"] == conftest.GOOGLE_SHOTS
     assert stats["shots_accepted"] == conftest.GOOGLE_SHOTS - 1
     assert stats["shots_rejected"] == 1
+
+
+def test_experiment_with_no_sweep_bits_stores_an_empty_value(tmp_path):
+    """The contract allows an empty sweep value; prove that path works.
+
+    The supplied release always has 9 or 25 sweep bits, so this branch can only
+    be reached with a synthetic experiment.
+    """
+    import io
+
+    import pyarrow.parquet as pq
+
+    release = conftest.write_release(tmp_path / "bronze", sweep_bits=0)
+    context, outcome = _build(release, tmp_path)
+
+    assert outcome.shot_rows == conftest.GOOGLE_SHOTS
+    table = pq.read_table(
+        io.BytesIO(context.lake.staged_bytes("silver/google_qec/shot.parquet"))
+    )
+    assert set(table.column("sweep_bits").to_pylist()) == {b""}
+    # Empty, not null: the column stays non-nullable.
+    assert table.column("sweep_bits").null_count == 0
+    # circuit_sweep_bits == data_qubits no longer holds, so the invariant fires.
+    rules = {issue["rule_id"] for issue in context.quality.to_table().to_pylist()}
+    assert "google_qec.experiment.derived_invariant_mismatch" in rules
+
+
+def test_out_of_order_batches_are_rejected():
+    """The streamed shot table is never sorted after the fact, so order is checked."""
+    import pyarrow as pa
+
+    from quantum_lake_student.lake import assert_sorted
+    from quantum_lake_student.schemas import GOOGLE_SHOT
+
+    def batch(experiment: str, indexes: list[int]) -> pa.RecordBatch:
+        rows = len(indexes)
+        return pa.record_batch(
+            {
+                "source_record_id": pa.array(["x"] * rows, type=pa.string()),
+                "experiment_id": pa.array([experiment] * rows, type=pa.string()),
+                "shot_index": pa.array(indexes, type=pa.int64()),
+                "measurement_bits": pa.array([b""] * rows, type=pa.binary()),
+                "sweep_bits": pa.array([b""] * rows, type=pa.binary()),
+                "detector_bits": pa.array([b""] * rows, type=pa.binary()),
+                "detector_event_count": pa.array([0] * rows, type=pa.int32()),
+                "actual_observable_flip": pa.array([False] * rows, type=pa.bool_()),
+                **{
+                    column: pa.array([False] * rows, type=pa.bool_())
+                    for column in DECODER_PREDICTION_COLUMNS
+                },
+            },
+            schema=GOOGLE_SHOT.schema,
+        )
+
+    highest = assert_sorted(GOOGLE_SHOT, batch("a", [0, 1, 2]))
+    assert highest == ("a", 2)
+    # A batch that goes backwards relative to the previous one is caught.
+    with pytest.raises(ValueError, match="out of order"):
+        assert_sorted(GOOGLE_SHOT, batch("a", [1, 2]), highest)
+    # A batch that is internally unsorted is caught.
+    with pytest.raises(ValueError, match="not sorted"):
+        assert_sorted(GOOGLE_SHOT, batch("a", [5, 3]))
 
 
 # ------------------------------------------------------------------- utilities

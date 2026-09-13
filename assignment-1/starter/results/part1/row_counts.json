@@ -105,7 +105,7 @@
     "data_issues.parquet": 21,
     "source_trace.parquet": 2075619
   },
-  "run_id": "run-20260913T190328Z",
+  "run_id": "run-20260913T213147Z",
   "silver": {
     "silver/google_qec/experiment.parquet": 5,
     "silver/google_qec/shot.parquet": 250000,

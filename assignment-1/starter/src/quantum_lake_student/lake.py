@@ -155,6 +155,7 @@ class Lake:
         """
         sink = io.BytesIO()
         rows = 0
+        highest: tuple | None = None
         writer = pq.ParquetWriter(
             sink,
             spec.schema,
@@ -164,6 +165,7 @@ class Lake:
         )
         try:
             for batch in batches:
+                highest = assert_sorted(spec, batch, highest)
                 writer.write_batch(batch, row_group_size=ROW_GROUP_SIZE)
                 rows += batch.num_rows
         finally:
@@ -273,11 +275,27 @@ class ParquetStream:
         return self._lake._stage_bytes(self._spec, self._sink.getvalue(), self._rows)
 
 
-def assert_sorted(spec: TableSpec, rows: list[dict[str, object]]) -> None:
-    """Fail loudly if a streamed table is not in its declared order."""
-    keys = [tuple(row[column] for column in spec.sort_by) for row in rows]
-    if keys != sorted(keys):  # type: ignore[type-var]
+def assert_sorted(
+    spec: TableSpec, batch: pa.RecordBatch, highest: tuple | None = None
+) -> tuple | None:
+    """Verify a streamed batch continues the declared order; return its last key.
+
+    A streamed table cannot be sorted after the fact, so the ordering the writer
+    relies on is checked as the batches go past rather than assumed. ``highest``
+    is the previous batch's final key, so gaps between batches are caught too.
+    """
+    if not spec.sort_by or not batch.num_rows:
+        return highest
+    columns = [batch.column(name).to_pylist() for name in spec.sort_by]
+    keys = list(zip(*columns, strict=True))
+    if any(later < earlier for earlier, later in zip(keys, keys[1:], strict=False)):
         raise ValueError(f"{spec.name} batch is not sorted by {spec.sort_by}")
+    if highest is not None and keys[0] < highest:
+        raise ValueError(
+            f"{spec.name} batch starts at {keys[0]}, behind the previous batch's "
+            f"{highest}; the stream is out of order"
+        )
+    return keys[-1]
 
 
 def _sorted_to_contract(spec: TableSpec, table: pa.Table) -> pa.Table:

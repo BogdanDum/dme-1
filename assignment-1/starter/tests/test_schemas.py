@@ -67,7 +67,7 @@ CONTRACT: dict[str, list[tuple[str, pa.DataType]]] = {
         ("circuit_id", pa.string()),
         ("check_id", pa.string()),
         ("ancilla_qubit", pa.string()),
-        ("data_qubits", pa.list_(pa.field("item", pa.string(), nullable=False))),
+        ("data_qubits", pa.list_(pa.string())),
         ("syndrome_bit", pa.string()),
     ],
     "silver/qasmbench/conditional_correction.parquet": [

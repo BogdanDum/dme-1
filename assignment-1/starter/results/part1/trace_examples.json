@@ -76,7 +76,7 @@
     "selection_rule": "first shot, in (experiment_id, shot_index) order, where at least one supplied decoder prediction differs from the actual flip",
     "silver_table": "silver/google_qec/shot.parquet"
   },
-  "run_id": "run-20260913T190328Z",
+  "run_id": "run-20260913T213147Z",
   "syndrome": {
     "bronze_trace": [
       {

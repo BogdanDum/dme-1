@@ -147,11 +147,10 @@ QASM_STABILIZER_CHECK = TableSpec(
             pa.field("circuit_id", pa.string(), nullable=False),
             pa.field("check_id", pa.string(), nullable=False),
             pa.field("ancilla_qubit", pa.string(), nullable=False),
-            pa.field(
-                "data_qubits",
-                pa.list_(pa.field("item", pa.string(), nullable=False)),
-                nullable=False,
-            ),
+            # Plain `list<string>`, as the contract writes it. Parquet's LIST
+            # annotation renames the element field to "element" on round-trip;
+            # that is the format's own naming, not a schema change.
+            pa.field("data_qubits", pa.list_(pa.string()), nullable=False),
             pa.field("syndrome_bit", pa.string(), nullable=False),
         ]
     ),

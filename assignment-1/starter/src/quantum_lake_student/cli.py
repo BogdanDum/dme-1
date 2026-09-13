@@ -47,6 +47,13 @@ def command_run(settings: Settings, arguments: argparse.Namespace) -> int:
         console.print("[yellow]Nothing was published.[/yellow]")
         return EXIT_DATA_STOPPED
 
+    if result.partial:
+        console.print(
+            f"[yellow]Partial run[/yellow] ({', '.join(sources or ())}). Evidence "
+            f"written to {result.results_root}, leaving results/part1 alone: a "
+            "partial trace would not cover the other Silver tables."
+        )
+
     table = Table(title=f"Part I outputs ({result.run_id})")
     table.add_column("Path")
     table.add_column("Rows", justify="right")

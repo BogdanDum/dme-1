@@ -61,6 +61,12 @@ make qasm
 `make run` is the single documented Part I command. It is safe to re-run: a
 second run over unchanged input rewrites the same bytes rather than appending.
 
+The single-source targets are for iteration only. Their lineage covers just the
+source they processed, so they write evidence to
+`starter/results/partial/<source>/` and leave the canonical `results/part1/`
+alone — otherwise the Silver tables from the last full run would be left
+untraced. Always finish with a full `make run` before committing evidence.
+
 ### Running on the host, without Docker
 
 Useful for fast iteration on the parsers. Bronze is read from the extracted

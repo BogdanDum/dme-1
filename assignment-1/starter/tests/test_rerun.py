@@ -173,6 +173,42 @@ def test_trace_examples_demonstrate_both_required_traces(release, tmp_path):
     assert all(row["input_sha256"] for row in shot["bronze_trace"])
 
 
+def test_a_partial_run_does_not_overwrite_the_canonical_evidence(release, tmp_path):
+    """A single-source run's trace covers only that source, so it must not clobber.
+
+    Otherwise the Silver tables left by the previous full run would no longer
+    resolve to anything in source_trace.parquet.
+    """
+    results = tmp_path / "results-one"
+    _run(release, tmp_path, "one")
+    before = _digest(results / "part1" / "source_trace.parquet")
+
+    partial = pipeline.run_part1(
+        settings=release.settings,
+        results_root=results,
+        repository=tmp_path,
+        run_id="run-partial",
+        sources=("qec_syndromes",),
+    )
+    assert partial.partial is True
+    assert _digest(results / "part1" / "source_trace.parquet") == before
+    # Its own evidence still lands somewhere inspectable.
+    assert (partial.results_root / "part1" / "source_trace.parquet").exists()
+    assert partial.results_root != results
+
+
+def test_an_unknown_source_is_rejected(release, tmp_path):
+    import pytest
+
+    with pytest.raises(ValueError, match="Unknown source"):
+        pipeline.run_part1(
+            settings=release.settings,
+            results_root=tmp_path / "r",
+            repository=tmp_path,
+            sources=("not_a_source",),
+        )
+
+
 def test_a_failed_run_leaves_the_previous_outputs_intact(release, tmp_path):
     """A fatal rule must not publish, so the last good Silver survives."""
     import conftest
