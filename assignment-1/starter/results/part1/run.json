@@ -1,0 +1,102 @@
+{
+  "code_revision": "unversioned",
+  "finished_at": "2026-09-13T19:03:30.711140+00:00",
+  "inputs": {
+    "google_qec": {
+      "archive_members": 76,
+      "bronze_object": "google-surface-code-curated.zip",
+      "bytes": 14638673,
+      "key": "raw/source=google_qec/google-surface-code-curated.zip",
+      "sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56"
+    },
+    "qasmbench": {
+      "archive_members": 19,
+      "bronze_object": "qasmbench-qec.zip",
+      "bytes": 144172,
+      "key": "raw/source=qasmbench/qasmbench-qec.zip",
+      "sha256": "60307f88e34b1f752b94223d6d136da72c629b4b625ac6d1c30e5e2e4f85722a"
+    },
+    "qec_syndromes": {
+      "archive_members": 8,
+      "bronze_object": "syndromes_dataset.zip",
+      "bytes": 358017,
+      "key": "raw/source=qec_syndromes/syndromes_dataset.zip",
+      "sha256": "bdfce36a71f04295ac78fb372d9c2e381801c05e3be119f919750ef59026d072"
+    }
+  },
+  "issues": {
+    "by_rule": {
+      "qasmbench.qasm.no_conditional_correction": 4,
+      "qasmbench.qasm.no_explicit_parity_check": 4,
+      "qec_syndromes.observation.same_syndrome_both_labels": 6,
+      "qec_syndromes.readme.documented_header_mismatch": 7
+    },
+    "total": 21
+  },
+  "lake_backend": "local",
+  "outputs": {
+    "part1/data_issues.parquet": {
+      "bytes": 5248,
+      "rows": 21,
+      "sha256": "532fb25efe4a80a57ea28066df24c58454491f27321804c5caf273bb57026c69"
+    },
+    "part1/source_trace.parquet": {
+      "bytes": 12755758,
+      "rows": 2075619,
+      "sha256": "7381f747998a27d60d65939b6dfb70bee21dccee3f40bfa948309468365400ca"
+    },
+    "silver/google_qec/experiment.parquet": {
+      "bytes": 3489,
+      "rows": 5,
+      "sha256": "227fbbf6a3e58206b34f36abece3340f31c5e127eb40783d21de1d9a4050f6e3"
+    },
+    "silver/google_qec/shot.parquet": {
+      "bytes": 25972264,
+      "rows": 250000,
+      "sha256": "ad21fbfc33be0eeb2c619953859b1c9ff85b4d2d33e86f53bf94c2670195a801"
+    },
+    "silver/qasmbench/circuit.parquet": {
+      "bytes": 3688,
+      "rows": 6,
+      "sha256": "d7643daa685c832d6f3ff683bdd536025ea69ad47b959f2ab387702e5037e712"
+    },
+    "silver/qasmbench/conditional_correction.parquet": {
+      "bytes": 2430,
+      "rows": 6,
+      "sha256": "934df36215233fa74757ac5aac18e3de6432e60ad7e975c9e1a7475764259a89"
+    },
+    "silver/qasmbench/stabilizer_check.parquet": {
+      "bytes": 2649,
+      "rows": 4,
+      "sha256": "b6a763f384d6b0a78c2d5797b4bdb9fb43901f66c6a84dae91c1b9b0e6ebedc5"
+    },
+    "silver/qec_syndromes/syndrome_observation.parquet": {
+      "bytes": 3046287,
+      "rows": 75598,
+      "sha256": "a8dfeb15a8dc79c891514c52af596a4dcdd3f983946bcdcfe534db4cfca352ad"
+    }
+  },
+  "run_id": "run-20260913T190328Z",
+  "silver_to_gold": {
+    "status": "pending"
+  },
+  "stages": [
+    {
+      "finished_at": "2026-09-13T19:03:28.770679+00:00",
+      "input_count": 3,
+      "issue_count": 0,
+      "output_count": 3,
+      "stage": "register_sources",
+      "started_at": "2026-09-13T19:03:28.721223+00:00"
+    },
+    {
+      "finished_at": "2026-09-13T19:03:30.703699+00:00",
+      "input_count": 3,
+      "issue_count": 21,
+      "output_count": 325619,
+      "stage": "prepare_data",
+      "started_at": "2026-09-13T19:03:28.770691+00:00"
+    }
+  ],
+  "started_at": "2026-09-13T19:03:28.688652+00:00"
+}

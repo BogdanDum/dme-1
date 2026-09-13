@@ -1,0 +1,8 @@
+# Course-supplied material must not be committed (submission checklist).
+assignment-1.zip
+presentation.html
+assignment-1/datasets/
+
+# macOS
+.DS_Store
+**/.DS_Store

@@ -1,0 +1,106 @@
+{
+  "google": {
+    "bronze_trace": [
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/detection_events.b8",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/measurements.b8",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/obs_flips_actual.01",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/obs_flips_predicted_by_belief_matching.01",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/obs_flips_predicted_by_correlated_matching.01",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/obs_flips_predicted_by_pymatching.01",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/obs_flips_predicted_by_tensor_network_contraction.01",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      },
+      {
+        "archive_member": "surface_code_bX_d3_r25_center_3_5/sweep.b8",
+        "bronze_object": "google-surface-code-curated.zip",
+        "input_sha256": "5d6a24f89f055883a49910979490be4baef54d28bf9a0f8e096a1d6c46d1ea56",
+        "record_locator": "shot=1"
+      }
+    ],
+    "decoders_that_were_wrong": [
+      "correlated_matching",
+      "pymatching"
+    ],
+    "planned_gold_and_ml": {
+      "status": "pending"
+    },
+    "record": {
+      "actual_observable_flip": true,
+      "detector_bits_bytes": 25,
+      "detector_event_count": 36,
+      "experiment_id": "surface_code_bX_d3_r25_center_3_5",
+      "measurement_bits_bytes": 27,
+      "predictions": {
+        "belief_matching_prediction": true,
+        "correlated_matching_prediction": false,
+        "pymatching_prediction": false,
+        "tensor_network_contraction_prediction": true
+      },
+      "shot_index": 1,
+      "source_record_id": "e905837969e078d4a2245bea4659ebdd37a6a6284796103f5c6ca2eb2eb6b5e0",
+      "sweep_bits_bytes": 2
+    },
+    "selection_rule": "first shot, in (experiment_id, shot_index) order, where at least one supplied decoder prediction differs from the actual flip",
+    "silver_table": "silver/google_qec/shot.parquet"
+  },
+  "run_id": "run-20260913T190328Z",
+  "syndrome": {
+    "bronze_trace": [
+      {
+        "archive_member": "d-3_pfr-0.005000_nb-10M.csv",
+        "bronze_object": "syndromes_dataset.zip",
+        "input_sha256": "bdfce36a71f04295ac78fb372d9c2e381801c05e3be119f919750ef59026d072",
+        "record_locator": "row=1"
+      }
+    ],
+    "occurs_under_both_labels": true,
+    "planned_gold_and_ml": {
+      "status": "pending"
+    },
+    "record": {
+      "check_count": 4,
+      "experiment_id": "qec_syndromes:d3:pfr=0.005000",
+      "logical_error_label": false,
+      "physical_fault_rate": 0.005,
+      "quantity": 5309458,
+      "round_count": 4,
+      "source_record_id": "3a913cce9e4beb9b6a2bfff6f903986d110316b8e53d5b42479a7d86f1dd77c8",
+      "syndrome_bits_hex": "00000000000000000000000000000000"
+    },
+    "selection_rule": "lowest syndrome_bits at physical_fault_rate 0.005 that occurs under both logical-error labels",
+    "silver_table": "silver/qec_syndromes/syndrome_observation.parquet"
+  }
+}

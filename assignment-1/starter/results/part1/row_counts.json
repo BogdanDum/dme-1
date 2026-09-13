@@ -1,0 +1,342 @@
+{
+  "loaded": {},
+  "reconciliation": [
+    {
+      "accepted": 1,
+      "check": "bronze:google_qec: read == accepted + rejected",
+      "passed": true,
+      "read": 1,
+      "rejected": 0
+    },
+    {
+      "accepted": 1,
+      "check": "bronze:qasmbench: read == accepted + rejected",
+      "passed": true,
+      "read": 1,
+      "rejected": 0
+    },
+    {
+      "accepted": 1,
+      "check": "bronze:qec_syndromes: read == accepted + rejected",
+      "passed": true,
+      "read": 1,
+      "rejected": 0
+    },
+    {
+      "accepted": 6,
+      "check": "circuit: read == accepted + rejected",
+      "passed": true,
+      "read": 6,
+      "rejected": 0
+    },
+    {
+      "accepted": 6,
+      "check": "conditional_correction: read == accepted + rejected",
+      "passed": true,
+      "read": 6,
+      "rejected": 0
+    },
+    {
+      "accepted": 5,
+      "check": "experiment: read == accepted + rejected",
+      "passed": true,
+      "read": 5,
+      "rejected": 0
+    },
+    {
+      "accepted": 250000,
+      "check": "shot: read == accepted + rejected",
+      "passed": true,
+      "read": 250000,
+      "rejected": 0
+    },
+    {
+      "accepted": 4,
+      "check": "stabilizer_check: read == accepted + rejected",
+      "passed": true,
+      "read": 4,
+      "rejected": 0
+    },
+    {
+      "accepted": 75598,
+      "check": "syndrome_observation: read == accepted + rejected",
+      "passed": true,
+      "read": 75598,
+      "rejected": 0
+    },
+    {
+      "accepted": 75598,
+      "check": "syndrome_observation: published rows == accepted rows",
+      "passed": true,
+      "published": 75598
+    },
+    {
+      "accepted": 5,
+      "check": "experiment: published rows == accepted rows",
+      "passed": true,
+      "published": 5
+    },
+    {
+      "accepted": 250000,
+      "check": "shot: published rows == accepted rows",
+      "passed": true,
+      "published": 250000
+    },
+    {
+      "accepted": 6,
+      "check": "circuit: published rows == accepted rows",
+      "passed": true,
+      "published": 6
+    },
+    {
+      "accepted": 4,
+      "check": "stabilizer_check: published rows == accepted rows",
+      "passed": true,
+      "published": 4
+    },
+    {
+      "accepted": 6,
+      "check": "conditional_correction: published rows == accepted rows",
+      "passed": true,
+      "published": 6
+    }
+  ],
+  "results": {
+    "data_issues.parquet": 21,
+    "source_trace.parquet": 2075619
+  },
+  "run_id": "run-20260913T190328Z",
+  "silver": {
+    "silver/google_qec/experiment.parquet": 5,
+    "silver/google_qec/shot.parquet": 250000,
+    "silver/qasmbench/circuit.parquet": 6,
+    "silver/qasmbench/conditional_correction.parquet": 6,
+    "silver/qasmbench/stabilizer_check.parquet": 4,
+    "silver/qec_syndromes/syndrome_observation.parquet": 75598
+  },
+  "sources": {
+    "google_qec": {
+      "experiments": 5,
+      "per_experiment": {
+        "surface_code_bX_d3_r25_center_3_5": {
+          "actual_flip_count": 24517,
+          "decoder_mistakes": {
+            "belief_matching": 20125,
+            "correlated_matching": 20971,
+            "pymatching": 21708,
+            "tensor_network_contraction": 20114
+          },
+          "detector_count": 200,
+          "detector_events_total": 1491971,
+          "measurement_count": 209,
+          "shots_accepted": 50000,
+          "shots_read": 50000,
+          "shots_rejected": 0,
+          "sweep_bits": 9
+        },
+        "surface_code_bX_d3_r25_center_5_3": {
+          "actual_flip_count": 24790,
+          "decoder_mistakes": {
+            "belief_matching": 20796,
+            "correlated_matching": 21259,
+            "pymatching": 22159,
+            "tensor_network_contraction": 20652
+          },
+          "detector_count": 200,
+          "detector_events_total": 1455560,
+          "measurement_count": 209,
+          "shots_accepted": 50000,
+          "shots_read": 50000,
+          "shots_rejected": 0,
+          "sweep_bits": 9
+        },
+        "surface_code_bX_d3_r25_center_5_7": {
+          "actual_flip_count": 24728,
+          "decoder_mistakes": {
+            "belief_matching": 19598,
+            "correlated_matching": 20912,
+            "pymatching": 21532,
+            "tensor_network_contraction": 19196
+          },
+          "detector_count": 200,
+          "detector_events_total": 1371037,
+          "measurement_count": 209,
+          "shots_accepted": 50000,
+          "shots_read": 50000,
+          "shots_rejected": 0,
+          "sweep_bits": 9
+        },
+        "surface_code_bX_d3_r25_center_7_5": {
+          "actual_flip_count": 24577,
+          "decoder_mistakes": {
+            "belief_matching": 19418,
+            "correlated_matching": 20648,
+            "pymatching": 21497,
+            "tensor_network_contraction": 19436
+          },
+          "detector_count": 200,
+          "detector_events_total": 1348612,
+          "measurement_count": 209,
+          "shots_accepted": 50000,
+          "shots_read": 50000,
+          "shots_rejected": 0,
+          "sweep_bits": 9
+        },
+        "surface_code_bX_d5_r25_center_5_5": {
+          "actual_flip_count": 25000,
+          "decoder_mistakes": {
+            "belief_matching": 20074,
+            "correlated_matching": 21283,
+            "pymatching": 22551,
+            "tensor_network_contraction": 19775
+          },
+          "detector_count": 600,
+          "detector_events_total": 4779745,
+          "measurement_count": 625,
+          "shots_accepted": 50000,
+          "shots_read": 50000,
+          "shots_rejected": 0,
+          "sweep_bits": 25
+        }
+      },
+      "shots": 250000
+    },
+    "qasmbench": {
+      "tables": {
+        "circuit": 6,
+        "conditional_correction": 6,
+        "stabilizer_check": 4
+      }
+    },
+    "qec_syndromes": {
+      "per_file": {
+        "d-3_pfr-0.000010_nb-10M.csv": {
+          "accepted": 68,
+          "nominal_from_filename": 10000000,
+          "read": 68,
+          "rejected": 0,
+          "syndromes_with_both_labels": 0,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.000050_nb-10M.csv": {
+          "accepted": 215,
+          "nominal_from_filename": 10000000,
+          "read": 215,
+          "rejected": 0,
+          "syndromes_with_both_labels": 13,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.000100_nb-10M.csv": {
+          "accepted": 491,
+          "nominal_from_filename": 10000000,
+          "read": 491,
+          "rejected": 0,
+          "syndromes_with_both_labels": 46,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.000500_nb-10M.csv": {
+          "accepted": 1407,
+          "nominal_from_filename": 10000000,
+          "read": 1407,
+          "rejected": 0,
+          "syndromes_with_both_labels": 179,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.001000_nb-10M.csv": {
+          "accepted": 2854,
+          "nominal_from_filename": 10000000,
+          "read": 2854,
+          "rejected": 0,
+          "syndromes_with_both_labels": 467,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.005000_nb-10M.csv": {
+          "accepted": 20887,
+          "nominal_from_filename": 10000000,
+          "read": 20887,
+          "rejected": 0,
+          "syndromes_with_both_labels": 6244,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        },
+        "d-3_pfr-0.010000_nb-10M.csv": {
+          "accepted": 49676,
+          "nominal_from_filename": 10000000,
+          "read": 49676,
+          "rejected": 0,
+          "syndromes_with_both_labels": 18210,
+          "weighted_total_accepted": 10000000,
+          "weighted_total_read": 10000000
+        }
+      },
+      "totals": {
+        "accepted": 75598,
+        "read": 75598,
+        "rejected": 0,
+        "weighted_total_accepted": 70000000,
+        "weighted_total_read": 70000000
+      }
+    }
+  },
+  "tables": {
+    "bronze:google_qec": {
+      "accepted": 1,
+      "read": 1,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "bronze:qasmbench": {
+      "accepted": 1,
+      "read": 1,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "bronze:qec_syndromes": {
+      "accepted": 1,
+      "read": 1,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "circuit": {
+      "accepted": 6,
+      "read": 6,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "conditional_correction": {
+      "accepted": 6,
+      "read": 6,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "experiment": {
+      "accepted": 5,
+      "read": 5,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "shot": {
+      "accepted": 250000,
+      "read": 250000,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "stabilizer_check": {
+      "accepted": 4,
+      "read": 4,
+      "reconciles": true,
+      "rejected": 0
+    },
+    "syndrome_observation": {
+      "accepted": 75598,
+      "read": 75598,
+      "reconciles": true,
+      "rejected": 0
+    }
+  }
+}

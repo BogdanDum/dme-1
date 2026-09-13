@@ -1,0 +1,12 @@
+.env
+**/.DS_Store
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+starter/lake/
+starter/reports/
+starter/.coverage
+
+
+# Local development venv (the container provides its own interpreter)
+starter/.venv/
