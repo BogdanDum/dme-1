@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS gold.experiment (
 );
 COMMENT ON TABLE gold.experiment IS 'One Google hardware experiment directory.';
 CREATE TABLE IF NOT EXISTS gold.shot (
-    source_record_id text PRIMARY KEY,
+    source_record_id_shot text PRIMARY KEY,
     experiment_id text NOT NULL REFERENCES gold.experiment,
     shot_index bigint NOT NULL CHECK (shot_index >= 0),
     measurement_bits bytea NOT NULL,
@@ -100,14 +100,10 @@ CREATE TABLE IF NOT EXISTS gold.conditional_correction (
 );
 COMMENT ON TABLE gold.conditional_correction IS 'One syndrome-controlled recovery operation in a circuit.';
 CREATE INDEX IF NOT EXISTS correction_circuit_idx ON gold.conditional_correction (circuit_id);
-CREATE OR REPLACE VIEW gold.syndrome_value AS
-SELECT source_record_id, i / 4 AS round_index, i % 4 AS check_index,
-       get_byte(syndrome_bits, i) AS value
-FROM gold.syndrome_observation CROSS JOIN generate_series(0, 15) AS position(i);
-CREATE OR REPLACE VIEW gold.decoder_error AS
+CREATE OR REPLACE VIEW gold.decoder_correctness AS
 SELECT p.*, s.experiment_id, s.shot_index,
-       p.predicted_observable_flip <> s.actual_observable_flip AS decoder_error
-FROM gold.decoder_prediction p JOIN gold.shot s USING (source_record_id);
+       p.predicted_observable_flip = s.actual_observable_flip AS decoder_correctness
+FROM gold.decoder_prediction p JOIN gold.shot s USING (source_record_id_shot);
 """
 
 INSERTS = """
@@ -115,7 +111,7 @@ INSERT INTO gold.syndrome_experiment
 SELECT DISTINCT experiment_id, physical_fault_rate, round_count, check_count
 FROM silver_syndrome_observation;
 INSERT INTO gold.syndrome_observation
-SELECT source_record_id, experiment_id, syndrome_bits, logical_error_label, sample_weight
+SELECT source_record_id, experiment_id, syndrome_bits, logical_error_label, quantity as sample_weight
 FROM silver_syndrome_observation;
 INSERT INTO gold.experiment SELECT * FROM silver_experiment;
 INSERT INTO gold.shot

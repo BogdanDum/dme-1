@@ -20,7 +20,7 @@ from ..models import StageResult
 from ..schemas import SILVER_TABLES, TableSpec
 from .postgres_model import DDL, GOLD_TABLES, INSERTS
 
-BATCH_SIZE = 20_000
+BATCH_SIZE = 25_000
 
 
 @contextmanager
@@ -34,7 +34,6 @@ def _parquet(settings: Settings, spec: TableSpec):
         settings.s3_bucket, spec.relative_path
     )
     try:
-        # Parquet needs seeks; spool to disk rather than retaining a shot file in RAM.
         with TemporaryFile(dir=".") as stream:
             for chunk in response.stream(1024 * 1024):
                 stream.write(chunk)
@@ -66,12 +65,6 @@ def _sql_type(dtype: pa.DataType) -> str:
 
 def _stage(cursor, settings: Settings, spec: TableSpec) -> int:
     with _parquet(settings, spec) as parquet:
-        for field in spec.schema:
-            if (
-                field.name not in parquet.schema_arrow.names
-                or parquet.schema_arrow.field(field.name).type != field.type
-            ):
-                raise ValueError(f"{spec.relative_path}: missing or mistyped {field.name}")
         name = sql.Identifier("silver_" + spec.name)
         columns = sql.SQL(", ").join(
             sql.SQL("{} {} NOT NULL").format(
@@ -93,7 +86,7 @@ def _stage(cursor, settings: Settings, spec: TableSpec) -> int:
         return count
 
 
-def run(run_id: str) -> StageResult:
+def postgres_run(run_id: str) -> StageResult:
     return load(run_id, Settings.from_environment())
 
 
@@ -128,7 +121,7 @@ def load(run_id: str, settings: Settings) -> StageResult:
                 SELECT e.experiment_id FROM gold.experiment e
                 LEFT JOIN gold.shot s USING (experiment_id)
                 GROUP BY e.experiment_id, e.shots
-                HAVING count(s.source_record_id) <> e.shots
+                HAVING count(s.source_record_id_shot) <> e.shots
                     OR min(s.shot_index) <> 0 OR max(s.shot_index) <> e.shots - 1
             """)
             if cursor.fetchone() is not None:

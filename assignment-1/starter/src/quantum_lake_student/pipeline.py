@@ -19,6 +19,7 @@ from .quality import FatalDataError
 from .results import write_all
 from .runcontext import RunContext
 from .stages.prepare_data import SOURCE_ORDER, SilverOutcome, prepare
+from .stages.load_postgres import postgres_run
 from .stages.register_sources import register
 
 EXIT_OK = 0
@@ -83,12 +84,14 @@ def run_part1(
         }
 
     outcome, prepare_result = prepare(context, registry)
+    load_result = postgres_run(context.run_id)
+
     published = context.lake.commit()
     write_all(
         context,
         registry=registry,
         outcome=outcome,
-        stage_results=[register_result, prepare_result],
+        stage_results=[register_result, prepare_result, load_result],
         published=published,
     )
     return Part1Result(

@@ -9,3 +9,7 @@ assignment-1/datasets/
 
 # Partial single-source runs write scratch evidence here
 assignment-1/starter/results/partial/
+
+# IDE stuff
+**/*-pycharm-support-libs/
+.idea/
