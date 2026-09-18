@@ -75,15 +75,13 @@ def _stage(cursor, settings: Settings, spec: TableSpec) -> int:
         cursor.execute(
             sql.SQL("CREATE TEMP TABLE {} ({}) ON COMMIT DROP").format(name, columns)
         )
-        count = 0
         with cursor.copy(sql.SQL("COPY {} FROM STDIN").format(name)) as copy:
             for batch in parquet.iter_batches(
                 batch_size=BATCH_SIZE, columns=list(spec.column_names)
             ):
                 for row in batch.to_pylist():
                     copy.write_row(tuple(row[column] for column in spec.column_names))
-                count += batch.num_rows
-        return count
+        return parquet.metadata.num_rows
 
 
 def postgres_run(run_id: str) -> StageResult:
@@ -103,6 +101,7 @@ def load(run_id: str, settings: Settings) -> StageResult:
             # Serialize loaders, including first-time schema creation.
             cursor.execute("SELECT pg_advisory_xact_lock(716203941)")
             counts = {spec.name: _stage(cursor, settings, spec) for spec in SILVER_TABLES}
+
             cursor.execute(DDL)
             # DELETE preserves MVCC snapshots and existing downstream view dependencies.
             for name in reversed(GOLD_TABLES):

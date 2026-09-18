@@ -13,13 +13,20 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+from uuid import uuid4
 
+import psycopg
+from psycopg import sql
+from psycopg.conninfo import make_conninfo
 import pytest
 
 from quantum_lake_student.config import Settings
+from quantum_lake_student.stages import load_postgres
+from quantum_lake_student.stages.postgres_model import DDL
 
 FIXED_TIMESTAMP = (2026, 1, 1, 0, 0, 0)
 
@@ -293,3 +300,27 @@ def isolate_from_ambient_config(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture
 def release(tmp_path: Path) -> Release:
     return write_release(tmp_path / "bronze")
+
+
+@pytest.fixture
+def database(monkeypatch):
+    """Use course credentials, but direct every Gold load to a disposable DB."""
+    dsn = os.getenv("TEST_POSTGRES_DSN")
+    if not dsn:
+        dsn = make_conninfo(
+            Settings.from_environment().postgres_dsn,
+            host=os.getenv("POSTGRES_HOST", "localhost"),
+        )
+    name = "test_gold_" + uuid4().hex
+    with psycopg.connect(dsn, autocommit=True, connect_timeout=5) as admin:
+        admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
+        try:
+            def connect(settings=None):
+                return psycopg.connect(dsn, dbname=name, connect_timeout=5)
+
+            monkeypatch.setattr(load_postgres, "postgres_connection", connect)
+            with connect() as connection:
+                connection.execute(DDL)
+            yield connect
+        finally:
+            admin.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))

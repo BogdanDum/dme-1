@@ -1,7 +1,7 @@
 """The one documented command for Part I.
 
 Runs Bronze registration then Silver preparation against a single shared run
-context, publishes everything at once, and writes the Part I evidence files.
+context, publishes Silver, refreshes Gold, and writes the Part I evidence files.
 
 Nothing is published until every source has parsed successfully. A fatal rule --
 a missing companion file or an unsafe archive member -- aborts before the commit,
@@ -18,8 +18,8 @@ from .lake import PublishResult
 from .quality import FatalDataError
 from .results import write_all
 from .runcontext import RunContext
+from .stages import load_postgres
 from .stages.prepare_data import SOURCE_ORDER, SilverOutcome, prepare
-from .stages.load_postgres import postgres_run
 from .stages.register_sources import register
 
 EXIT_OK = 0
@@ -53,13 +53,14 @@ def run_part1(
     sources: tuple[str, ...] | None = None,
     bronze_root: Path | None = None,
 ) -> Part1Result:
-    """Execute Bronze and Silver, publish, and write the evidence files.
+    """Execute Bronze and Silver, publish, refresh Gold, and write evidence.
 
     ``sources`` limits the run to a subset, for iterating on one parser. Such a
     run is *partial*: its ``source_trace`` covers only the sources it processed,
     so its evidence goes under ``results/partial/<sources>/`` instead of over the
     canonical ``results/part1/``. Otherwise the Silver tables an earlier full run
     left in place would be left untraced, breaking the tracing contract.
+    Partial runs do not refresh Gold from a mixture of fresh and stale Silver.
     """
     if sources:
         unknown = set(sources) - set(SOURCE_ORDER)
@@ -84,14 +85,16 @@ def run_part1(
         }
 
     outcome, prepare_result = prepare(context, registry)
-    load_result = postgres_run(context.run_id)
-
     published = context.lake.commit()
+    stage_results = [register_result, prepare_result]
+    if not sources:
+        load_result = load_postgres.load(context.run_id, context.settings)
+        stage_results.append(load_result)
     write_all(
         context,
         registry=registry,
         outcome=outcome,
-        stage_results=[register_result, prepare_result, load_result],
+        stage_results=stage_results,
         published=published,
     )
     return Part1Result(

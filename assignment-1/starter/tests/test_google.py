@@ -30,6 +30,7 @@ def _context(release, tmp_path: Path) -> RunContext:
         results_root=tmp_path / "results",
         repository=tmp_path,
         run_id="run-test",
+        bronze_root=release.root,
     )
 
 

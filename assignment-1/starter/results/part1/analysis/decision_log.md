@@ -1,7 +1,11 @@
 # Decision log
+## Bronze 
+
+### Analysis test coverage
+
 ## Silver
 
-### Possible Mistakes Covered by Tests
+### Analysis test coverage
 Repeated runs are safe
 
 ## Gold 
@@ -196,6 +200,57 @@ One row represents one recovery operation controlled by a measured syndrome.
 `circuit_id` is the foreign key to Circuit.
 
 Other than that, the table stayed the same with regard to the Silver table.
+
+### Analysis test coverage
+
+`tests/test_gold.py` runs the production Gold DDL, loader, and committed
+`queries/query1.sql`, `query2a.sql`, `query2b.sql`, and `query3.sql` against real
+PostgreSQL with small deterministic fixtures.
+
+| Requirement in the assignment brief | Test evidence |
+| --- | --- |
+| Weighted syndrome frequencies and labels (§ Part I analysis, question 1) | Unequal weights, the same pattern under both labels, two fault rates, exact expected rates, and frequencies summing to one per rate. |
+| Decoder comparisons (question 2) | All four decoders; perfect, always-wrong, and constant predictions; unequal experiment sizes to detect unweighted averaging; distances 3/5, distance-three locations, and separate basis/round groups. Both SQL files execute the required three-table join. |
+| Repetition-code mapping (question 3) | Exact six check–correction rows, including qubit pairs, ancillas, syndrome bits, conditions, and targets; other circuits, transpiled variants, and unrelated syndrome registers are excluded. Two rows describe each whole-register condition together, not independent triggers. |
+| Stable records on repeated Gold loads (§ Gold design) | Compare every Gold table after two loads; verify counts, retained source IDs and packed bytes, weights, four predictions per shot, and the correctness view. One-row batches exercise multiple COPY batches. |
+| Part I succeeds twice without duplicate business records or changed stable identifiers (submission checklist) | `tests/test_rerun.py::test_gold_records_and_identifiers_are_unchanged_on_a_second_run` runs `pipeline.run_part1()` twice over the same miniature release in one disposable database. Every Gold table must be populated after the first run; complete row snapshots, including identifiers, must match after the second, ignoring row order but preserving duplicate counts. This complements the Silver/trace rerun checks; it is fixture-based coverage, not evidence of two full-release runs. |
+| All-or-nothing Gold update (§ Gold) | After missing input, a database constraint failure, or failed shot-count reconciliation, every previously committed Gold table remains unchanged. |
+| Database integrity (§ Gold design) | Reject duplicate observation IDs, orphan shots/predictions/checks, nonpositive weights, wrong-length/nonbinary syndromes, empty data-qubit lists, and negative correction conditions. |
+| Pipeline-to-Gold handoff | A fresh miniature release reaches Gold using explicitly supplied settings despite conflicting ambient lake settings; all six loaded table counts match newly published Silver. A partial parser run leaves every Gold table unchanged. |
+
+The loader regression initially failed because Silver temporary tables were
+created twice. Staging now happens once and returns its Parquet row count for
+reconciliation. These tests cover local Silver-to-Gold and analysis semantics;
+they do not establish full-release pipeline, MinIO streaming, Gold-to-ML export, or
+end-to-end prediction tracing coverage.
+
+The rerun suite exposed a separate handoff bug: the pipeline re-read ambient
+configuration and invoked Gold before publishing its new Silver files. Tests
+therefore reached the real course dataset, with concurrent loads waiting on the
+Gold advisory lock. The pipeline now passes its run settings and publishes Silver
+before loading Gold. Partial source runs leave Gold untouched rather than loading
+a mixture of new and old sources. Gold replacement remains one transaction;
+Silver publication and Gold replacement are not a cross-storage transaction.
+
+The shared `database` fixture in `tests/conftest.py` isolates Gold tests and every
+pipeline-invoking rerun/schema test in disposable databases, without stubbing the
+loader. Connection attempts have a five-second timeout.
+
+With the course PostgreSQL service running, run from `starter`:
+
+```sh
+make test
+```
+
+Gold tests run by default using the course credentials from `Settings` and respect
+the `POSTGRES_*` environment variables. The default test host is `localhost` for
+host-side runs; the Compose workspace supplies `POSTGRES_HOST=postgres`.
+`TEST_POSTGRES_DSN` remains an optional override for a different test server.
+The connected role must be permitted to create databases.
+
+Each test creates a uniquely named `test_gold_*` database and drops it in cleanup;
+the course database's Gold schema is not modified. Missing or unreachable
+PostgreSQL now fails the tests instead of silently skipping Gold coverage.
 
 ## ML 
 Create example_id as is required in [the Markdown file on ML tables.](../../../../assignment/required-ml-tables.md)

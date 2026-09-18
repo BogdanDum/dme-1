@@ -156,6 +156,7 @@ def test_no_silver_table_mixes_two_sources():
             assert f"silver/{source_name}/" in spec.relative_path
 
 
+@pytest.mark.usefixtures("database")
 def test_published_tables_read_back_with_the_contract_schema(release, tmp_path):
     from quantum_lake_student import pipeline
 
@@ -177,6 +178,7 @@ def test_published_tables_read_back_with_the_contract_schema(release, tmp_path):
             assert table.schema.field(name).type == dtype, (relative_path, name)
 
 
+@pytest.mark.usefixtures("database")
 def test_trace_reads_back_as_plain_strings(release, tmp_path):
     from quantum_lake_student import pipeline
 

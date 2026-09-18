@@ -4,6 +4,7 @@ This is the evidence for the rubric's "proves that a second run adds no
 duplicates or unstable identifiers". Silver and the trace are compared byte for
 byte; ``data_issues`` is compared after dropping ``run_id``, which the contract
 requires it to carry and which therefore must be its only difference.
+Every Gold table is compared row for row, ignoring order but retaining duplicates.
 """
 
 from __future__ import annotations
@@ -12,10 +13,15 @@ import hashlib
 import json
 from pathlib import Path
 
+from psycopg import sql
 import pyarrow.parquet as pq
+import pytest
 
 from quantum_lake_student import pipeline
 from quantum_lake_student.schemas import SILVER_TABLES
+from quantum_lake_student.stages.postgres_model import GOLD_TABLES
+
+pytestmark = pytest.mark.usefixtures("database")
 
 BYTE_IDENTICAL = tuple(spec.relative_path for spec in SILVER_TABLES) + (
     "part1/source_trace.parquet",
@@ -28,6 +34,7 @@ def _run(release, tmp_path: Path, label: str):
         results_root=tmp_path / f"results-{label}",
         repository=tmp_path,
         run_id=f"run-{label}",
+        bronze_root=release.root,
     )
 
 
@@ -58,6 +65,32 @@ def test_row_counts_do_not_grow_on_a_second_run(release, tmp_path):
     assert {k: v.row_count for k, v in first.published.items()} == {
         k: v.row_count for k, v in second.published.items()
     }
+
+
+def _gold_snapshot(connect):
+    """Sort complete rows without discarding duplicate occurrences."""
+    with connect() as connection:
+        return {
+            name: sorted(
+                connection.execute(
+                    sql.SQL("SELECT * FROM gold.{}").format(sql.Identifier(name))
+                ).fetchall(),
+                key=repr,
+            )
+            for name in GOLD_TABLES
+        }
+
+
+def test_gold_records_and_identifiers_are_unchanged_on_a_second_run(database, release, tmp_path):
+    _run(release, tmp_path, "one")
+    before = _gold_snapshot(database)
+    for name, rows in before.items():
+        assert rows, f"gold.{name} must be populated by the first run"
+
+    _run(release, tmp_path, "two")
+    after = _gold_snapshot(database)
+    for name in GOLD_TABLES:
+        assert after[name] == before[name], f"gold.{name} changed on rerun"
 
 
 def test_record_ids_are_unchanged_and_unique(release, tmp_path):
